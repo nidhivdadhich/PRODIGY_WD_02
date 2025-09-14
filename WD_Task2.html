@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stopwatch</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: black;
+      font-family: "Lucida Handwriting", cursive;
+      color: #fff;
+    }
+    .stopwatch {
+      text-align: center;
+      background: rgba(255,255,255,0.08);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.2);
+      width: 360px;
+    }
+    .time {
+      font-size: 3em;
+      margin-bottom: 20px;
+    }
+    .milliseconds {
+      font-size: 0.5em;   /* Smaller font for ms */
+      vertical-align: super;
+      margin-left: 5px;
+    }
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+    }
+    button {
+      background: #fff;
+      color: #000;
+      border: none;
+      padding: 10px 15px;
+      font-size: 1em;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+      font-family: "Lucida Handwriting", cursive;
+      box-shadow: 0 4px #999;
+      flex: 1;
+      margin: 0 5px;
+    }
+    button:hover {
+      background: #ddd;
+    }
+    button:active {
+      box-shadow: 0 2px #666;
+      transform: translateY(2px);
+    }
+    .laps {
+      margin-top: 20px;
+      max-height: 150px;
+      overflow-y: auto;
+      background: rgba(255,255,255,0.08);
+      padding: 10px;
+      border-radius: 8px;
+      font-family: "Lucida Handwriting", cursive;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 5px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+    th {
+      font-size: 0.9em;
+    }
+    td {
+      font-size: 0.85em;
+    }
+  </style>
+</head>
+<body>
+  <div class="stopwatch">
+    <div class="time" id="display">00:00:00<span class="milliseconds">.00</span></div>
+    <div class="buttons">
+      <button onclick="startStop()">Start</button>
+      <button onclick="pause()">Pause</button>
+      <button onclick="reset()">Reset</button>
+      <button onclick="lap()">Lap</button>
+    </div>
+    <div class="laps">
+      <table id="lapsTable">
+        <thead>
+          <tr>
+            <th>Lap No.</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody id="laps"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    let [hours, minutes, seconds, milliseconds] = [0, 0, 0, 0];
+    let timer = null;
+    let running = false;
+    let lapCount = 0;
+
+    function updateDisplay() {
+      let h = hours < 10 ? "0" + hours : hours;
+      let m = minutes < 10 ? "0" + minutes : minutes;
+      let s = seconds < 10 ? "0" + seconds : seconds;
+      let ms = milliseconds < 10 ? "0" + milliseconds : milliseconds;
+
+      document.getElementById("display").innerHTML = 
+        `${h}:${m}:${s}<span class="milliseconds">.${ms}</span>`;
+    }
+
+    function stopwatch() {
+      milliseconds++;
+      if (milliseconds == 100) {  
+        milliseconds = 0;
+        seconds++;
+      }
+      if (seconds == 60) {
+        seconds = 0;
+        minutes++;
+      }
+      if (minutes == 60) {
+        minutes = 0;
+        hours++;
+      }
+      updateDisplay();
+    }
+
+    function startStop() {
+      if (!running) {
+        timer = setInterval(stopwatch, 10); 
+        running = true;
+      }
+    }
+
+    function pause() {
+      clearInterval(timer);
+      running = false;
+    }
+
+    function reset() {
+      clearInterval(timer);
+      [hours, minutes, seconds, milliseconds] = [0, 0, 0, 0];
+      updateDisplay();
+      document.getElementById("laps").innerHTML = "";
+      lapCount = 0;
+      running = false;
+    }
+
+    function lap() {
+      lapCount++;
+      let lapTime = document.getElementById("display").innerText;
+      let lapsTable = document.getElementById("laps");
+      let row = document.createElement("tr");
+
+      let lapNoCell = document.createElement("td");
+      lapNoCell.innerText = lapCount;
+
+      let timeCell = document.createElement("td");
+      timeCell.innerText = lapTime;
+
+      row.appendChild(lapNoCell);
+      row.appendChild(timeCell);
+      lapsTable.appendChild(row);
+    }
+  </script>
+</body>
+</html>
